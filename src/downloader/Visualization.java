@@ -2,6 +2,7 @@ package downloader;
 
 import javax.swing.*;
 import java.awt.*;
+import java.io.IOException;
 
 public class Visualization extends JFrame {
 
@@ -22,7 +23,11 @@ public class Visualization extends JFrame {
 
         button.addActionListener((event) -> {
             String str = text.getText();
-            imageSearcher.getImage(ioEngine.downLoadPicture(str));
+            try {
+                imageSearcher.getImage(ioEngine.downLoadPicture(str));
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
             label.setText("Downloading was successfully done");
         });
 

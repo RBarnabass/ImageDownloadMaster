@@ -19,28 +19,22 @@ public class IOEngine {
         return inputWebSite();
     }*/
 
-    public StringBuilder downLoadPicture(String str) {
+    public String downLoadPicture(String str) throws IOException {
 
-        InputStream is = null;
-        try {
-            URL url = new URL(str);
-            URLConnection urlConnection = url.openConnection();
-            is = urlConnection.getInputStream();
-            Scanner scanner = new Scanner(is);
+        URL url = new URL(str);
+        URLConnection urlConnection = url.openConnection();
+        try (
+            InputStream is = urlConnection.getInputStream();
+            Scanner scanner = new Scanner(is)) {
+
             StringBuilder sb = new StringBuilder();
 
             while (scanner.hasNextLine()) {
                 sb.append(scanner.nextLine()).append('\n');
             }
-            return sb;
+            return  sb.toString();
         } catch (IOException e) {
             System.err.println(" Problem with reading html page " + e.getMessage());
-        } finally {
-            try {
-                is.close();
-            } catch (IOException e) {
-                System.err.println(" Problem with release memory in reading process " + e.getMessage());
-            }
         }
         return null;
     }

@@ -11,10 +11,10 @@ import java.util.regex.Pattern;
 
 public class ImageSearcher {
 
-    public void getImage(StringBuilder sbHtml) {
+    public void getImage(String line) throws IOException {
 
         Pattern pattern = Pattern.compile("(http|https|ftp)://\\S*?\\.(png|jpg|gif)");
-        Matcher matcher = pattern.matcher(sbHtml.toString());
+        Matcher matcher = pattern.matcher(line);
 
         while (matcher.find()) {
             String str = matcher.group();
@@ -22,36 +22,20 @@ public class ImageSearcher {
         }
     }
 
-    public void savePicture(String picture) {
+    public void savePicture(String picture) throws IOException {
 
         FileOutputStream fos = null;
-        InputStream is = null;
-        try{
-            URL url = new URL(picture);
-            URLConnection urlConnection = url.openConnection();
-            is = urlConnection.getInputStream();
+        URL url = new URL(picture);
+        URLConnection urlConnection = url.openConnection();
+        try (InputStream is = urlConnection.getInputStream()) {
 
             String str = picture.substring(8, picture.length()).replace('/', '.');
 
-            if (str.contains("png")) {
-                File folder = new File("src/png");
-                if (!folder.exists()) {
-                    folder.mkdir();
-                }
-                fos = new FileOutputStream(folder + "/" + str);
-            } else if (str.contains("jpg")) {
-                File folder = new File("src/jpg");
-                if (!folder.exists()) {
-                    folder.mkdir();
-                }
-                fos = new FileOutputStream(folder + "/" + str);
-            } else if (str.contains("gif")) {
-                File folder = new File("src/gif");
-                if (!folder.exists()) {
-                    folder.mkdir();
-                }
-                fos = new FileOutputStream(folder + "/" + str);
+            File folder = new File(getType(str));
+            if (!folder.exists()) {
+                folder.mkdir();
             }
+            fos = new FileOutputStream(folder + "/" + str);
 
             byte[] buff = new byte[1024];
             int read;
@@ -65,10 +49,22 @@ public class ImageSearcher {
         } finally {
             try {
                 fos.close();
-                is.close();
             } catch (IOException e) {
                 System.err.println(" Problem with release memory in writing process " + e.getMessage());
             }
         }
+    }
+
+    private String getType(String line) {
+        if (line.contains("png")) {
+            return "src/png";
+        } else if (line.contains("jpg")) {
+            return "src/jpg";
+        } else if (line.contains("gif")) {
+            return "src/gif";
+        } else if (line.contains("jpeg")) {
+            return "src/jpeg";
+        }
+        return "";
     }
 }
